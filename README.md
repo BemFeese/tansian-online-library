@@ -1,32 +1,85 @@
-# Web-Based Library Book Management System (online lending edition)
+# 📚 Tansian Online Library — Web-Based Library Book Management System
 
-Students and teachers borrow **digital copies** of books from the school library and read them online. Access ends automatically when the loan period is over. The librarian manages books and their files, users, borrowing records and reports.
+Students and teachers borrow **digital copies** of books from the school library and read them **online**. Access ends automatically when the loan period is over — no overdue chasing. The librarian manages books and their files, users, borrowing records and reports.
 
-- **Frontend:** HTML, CSS and JavaScript in `frontend/`
-- **Backend:** Node.js and Express in `backend/`
-- **Database:** MySQL 8, defined in `backend/database/schema.sql`
-- **Book files:** kept on the server in `backend/storage/books` and only sent to people with an active loan
-- **Docs:** `docs/SETUP-GUIDE.md` (how to run it), `docs/waterfall-documentation.md` (phases, design, test plan), `docs/CHAPTER-4-REVISIONS.md` (what to change in your Chapter Four)
+![Node.js](https://img.shields.io/badge/Node.js-Express-green) ![Database](https://img.shields.io/badge/Database-MySQL_8-blue) ![Auth](https://img.shields.io/badge/Auth-JWT_sessions-orange) ![Frontend](https://img.shields.io/badge/Frontend-HTML%2FCSS%2FJS-yellow)
 
-## What each role can do
+---
 
-| Role | Can do |
+## 🖼️ Screenshots
+
+| | |
+|:---:|:---:|
+| ![Sign in](screenshots/01-sign-in.png) | ![Student dashboard](screenshots/02-student-dashboard.png) |
+| **Sign in** — students, teachers and admins each get their own gateway | **Student dashboard** — search the catalogue, see loans that end by themselves |
+| ![Book details](screenshots/03-book-details.png) | ![My borrowings](screenshots/04-my-borrowings.png) |
+| **Book details** — full metadata, digital copy status and one-click borrowing | **My borrowings** — active vs. expired loans with days remaining |
+| ![Admin dashboard](screenshots/05-admin-dashboard.png) | ![Manage books](screenshots/06-manage-books.png) |
+| **Administrator dashboard** — catalogue, members and loan position at a glance | **Manage books** — add, edit, deactivate or delete books and upload PDF/EPUB copies |
+| ![Manage users](screenshots/07-manage-users.png) | ![Borrowing records](screenshots/08-borrowing-records.png) |
+| **Manage users** — roles, status and active loans per member | **Borrowing records** — every loan with filters; end active loans early |
+
+## ✨ Features
+
+**Students & teachers**
+- 🔍 Search the online catalogue by title, author, ISBN or subject
+- 📖 Borrow books with a digital copy and **read them in the browser**
+- ⏳ Loans end automatically (14 days for students, 30 for teachers) — borrow again afterwards
+- 📥 Return early, review borrowing history, change password
+
+**Librarian (administrator)**
+- 📤 Manage books + upload digital copies (PDF/EPUB)
+- 👥 Manage users — students, teachers and fellow administrators
+- 📊 View all borrowing records, end loans early, and see dashboard reports
+- 🗜️ Roles-based access: separate admin sign-in, route-level middleware protection
+
+**System**
+- 🔐 Session-based auth with hashed passwords (bcrypt) + signed HTTP-only cookies (JWT)
+- 🛡️ Author-pages middleware keeps every admin route locked down
+- ⚙️ Loan length, borrow limits and upload size are all configurable in `.env`
+
+## 🛠️ Tech stack
+
+| Layer | Choice |
 |---|---|
-| Student, teacher | Search books, borrow a book that has a digital copy, read it online, return it early, see their borrowings, change their password |
-| Librarian (administrator) | Manage books and upload their files, manage users, see all borrowing records and end a loan, view the dashboard and reports |
+| **Frontend** | HTML, CSS, vanilla JavaScript (multi-page, no frameworks) |
+| **Backend** | Node.js + Express |
+| **Database** | MySQL 8 (schema in `backend/database/schema.sql`) |
+| **Auth** | bcrypt password hashing, JWT signed cookies, role middleware |
+| **Book files** | Stored server-side in `backend/storage/books`, streamed only to members with an active loan |
 
-Loan length is 14 days for students and 30 for teachers. Limits are 5 and 10 books at a time. Both are settings in `backend/.env`.
+## 🗃️ Database design
 
-## Quick start (details in `docs/SETUP-GUIDE.md`)
+Three core tables — `users`, `books` and `borrow_records` — enforce roles, file metadata and loan status at the schema level:
 
-Install Node.js (LTS) and MySQL 8 first, then in a terminal:
+| | | |
+|:---:|:---:|:---:|
+| ![users](docs/schema-users.png) | ![books](docs/schema-books.png) | ![borrow_records](docs/schema-borrow-records.png) |
+| `users` | `books` | `borrow_records` |
+
+## 📁 Project structure
 
 ```
+frontend/          HTML, CSS and JavaScript (public site + dashboards)
+backend/
+├── src/           Express routes, middleware and helpers
+│   ├── routes/    auth, books, borrow, dashboard, reports, users
+│   └── middleware/ auth.js — route protection by role
+├── scripts/       setup-db.js, setup-admin.js, sample-pdf.js
+├── database/      schema.sql — full MySQL schema
+└── storage/books/ uploaded book files (not committed)
+```
+
+## 🚀 Quick start (details in `docs/SETUP-GUIDE.md`)
+
+Install Node.js (LTS) and MySQL 8, then:
+
+```bash
 cd backend
 npm install
-copy .env.example .env      (then edit .env: set DB_PASSWORD and JWT_SECRET)
-npm run setup               (creates the database, tables, sample data and sample book files)
-npm start                   (then open http://localhost:3000)
+copy .env.example .env     # then edit .env: set DB_PASSWORD and JWT_SECRET
+npm run setup              # creates database, tables, sample data + sample books
+npm start                  # open http://localhost:3000
 ```
 
 Sample student/teacher accounts (change these passwords after signing in):
@@ -36,15 +89,25 @@ Sample student/teacher accounts (change these passwords after signing in):
 | Teacher | `TCH-001` | `Teacher@123` |
 | Student | `STU-1001`, `STU-1002`, `STU-1003` | `Student@123` |
 
-The sample book files are one-page placeholders. Replace them with real books from **Manage Books**. Only upload books the school has the right to share.
+## 👩‍💼 Real librarian / administrator sign-in
 
+The librarian does **not** register through the public student/teacher form. A fresh handover ships with **no named administrator account**. After `npm run setup`, open `http://localhost:3000` — the sign-in page shows **First-time setup → Create first administrator**. The person the school designates enters their own real name, email, staff/library ID and private password, and is signed in immediately. After that, additional administrators can be created from **Manage Users → Add user → Librarian (administrator)**.
 
-## Real librarian / administrator sign-in
+Administrator sign-in accepts an administrator email only — and the student/teacher form deliberately refuses administrator accounts.
 
-The librarian does **not** register through the public student/teacher form. A fresh handover is deliberately shipped with **no named administrator account**. After `npm run setup`, start the system and open `http://localhost:3000`. The sign-in page will show **First-time setup → Create first administrator**. The person Tansian designates as the librarian enters their own real name, real email address, staff/library ID and private password. The account is created as an active administrator and the librarian is signed in immediately.
+## 📄 Docs
 
-After the first administrator exists, the one-time setup closes. Additional administrators can be created from **Manage Users → Add user → Librarian (administrator)**. Each administrator has their own real email address and password.
+- 📘 [`docs/SETUP-GUIDE.md`](docs/SETUP-GUIDE.md) — how to run it
+- 📐 [`docs/waterfall-documentation.md`](docs/waterfall-documentation.md) — phases, design and test plan
+- 🤝 [`docs/ADMIN-HANDOVER-GUIDE.md`](docs/ADMIN-HANDOVER-GUIDE.md) — day-to-day management handover
+- 📝 [`docs/CHAPTER-4-REVISIONS.md`](docs/CHAPTER-4-REVISIONS.md) — project write-up revisions
 
-The normal student/teacher sign-in accepts email or ID number and deliberately refuses administrator accounts. Administrator sign-in accepts an administrator email address only.
+## 🔒 Security notes
 
-See `docs/ADMIN-HANDOVER-GUIDE.docx` for the complete handover, first-time setup, additional administrator, password and day-to-day management instructions.
+- `.env` is git-ignored — secrets (DB password, JWT secret) never enter version control
+- Book files are streamed **only** to members with an active loan, and access ends with the loan
+- Administrator accounts can't be reached through the public registration/sign-in form
+
+---
+
+*Built as the Tansian school library's online lending edition — from paper queueing to self-ending digital loans.*
