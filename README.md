@@ -1,5 +1,7 @@
 # 📚 Tansian Online Library — Web-Based Library Book Management System
 
+**[🔴 Try the live demo](https://tansian-online-library-demo.vercel.app)** — no install needed: one-click sample sign-in buttons are on the page, and every screen of the app is explorable with sample data.
+
 Students and teachers borrow **digital copies** of books from the school library and read them **online**. Access ends automatically when the loan period is over — no overdue chasing. The librarian manages books and their files, users, borrowing records and reports.
 
 ![Node.js](https://img.shields.io/badge/Node.js-Express-green) ![Database](https://img.shields.io/badge/Database-MySQL_8-blue) ![Auth](https://img.shields.io/badge/Auth-JWT_sessions-orange) ![Frontend](https://img.shields.io/badge/Frontend-HTML%2FCSS%2FJS-yellow)
